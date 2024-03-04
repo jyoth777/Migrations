@@ -1,1 +1,0 @@
-create table employee( id INT  PRIMARY KEY, name varchar(100) not null);
