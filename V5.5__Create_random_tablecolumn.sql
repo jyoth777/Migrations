@@ -1,1 +1,1 @@
-alter table random add ( newcolumn INT not null default 0);
+alter table random add  column newcolumn INT not null default 0;
