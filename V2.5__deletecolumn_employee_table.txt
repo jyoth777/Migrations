@@ -1,0 +1,1 @@
+alter table company add column IndustryType varchar(100);
