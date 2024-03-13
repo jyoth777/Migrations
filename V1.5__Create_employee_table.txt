@@ -1,1 +1,0 @@
-create table employee( IdUser INT  PRIMARY KEY, IdCompany INT, Name varchar(100) not null, CompanyName varchar(100),Email varchar(100) not null,CONSTRAINT fk_company_emp FOREIGN KEY(IdCompany) REFERENCES company(IdCompany));
