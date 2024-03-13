@@ -1,0 +1,1 @@
+create table company(IdCompany INT, Name varchar(100) not null);
