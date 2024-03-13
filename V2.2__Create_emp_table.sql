@@ -1,1 +1,0 @@
-create table emp( id INT  PRIMARY KEY, name varchar(100) not null);
