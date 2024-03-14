@@ -1,1 +1,1 @@
-create table company(IdCompany INT, Name varchar(100) not null);
+create table company(IdCompany INT PRIMARY KEY, Name varchar(100) not null);
