@@ -1,1 +1,1 @@
-alter table employee delete column CompanyName;
+alter table employee drop column CompanyName;
