@@ -1,1 +1,1 @@
-alter table company add column IndustryType varchar(100);
+alter table employee delete column CompanyName;
