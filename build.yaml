@@ -1,0 +1,12 @@
+name: Security Scan
+on: [push, pull_request]
+
+jobs:
+  mend-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Mend Scan
+        uses: whitesource/mend-scan-action@v1
+        with:
+          api-key: ${{ secrets.MEND_API_KEY }}

@@ -1,0 +1,49 @@
+# Python Dependencies with Known Vulnerabilities
+# These packages have known CVEs that Mend should detect
+
+# ❌ CVE-2022-40897: Critical vulnerability in setuptools
+setuptools==65.5.0
+
+# ❌ CVE-2023-43804: High severity in urllib3
+urllib3==1.26.5
+
+# ❌ CVE-2022-40023: SQL injection vulnerability
+Django==3.2.0
+
+# ❌ CVE-2021-33503: ReDoS vulnerability
+urllib3==1.26.4
+
+# ❌ CVE-2023-32681: High severity in requests
+requests==2.25.0
+
+# ❌ CVE-2022-42969: Critical vulnerability in py
+py==1.11.0
+
+# ❌ CVE-2023-5752: High severity in pip
+pip==21.0.0
+
+# ❌ CVE-2022-40898: Wheel package vulnerability
+wheel==0.37.0
+
+# ❌ CVE-2021-3572: pip vulnerability
+pip==21.1.0
+
+# ❌ Multiple CVEs in cryptography package
+cryptography==3.3.0
+
+# ❌ CVE-2022-23491: certifi vulnerability
+certifi==2021.5.30
+
+# ❌ CVE-2023-37920: certifi vulnerability
+certifi==2022.12.7
+
+# ❌ CVE-2022-40897: setuptools vulnerability
+setuptools==65.5.1
+
+# ❌ CVE-2024-35195: requests vulnerability
+requests==2.31.0
+
+# Legitimate packages (for context)
+numpy==1.21.0
+pandas==1.3.0
+flask==2.0.1
