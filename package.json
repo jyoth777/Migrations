@@ -1,0 +1,33 @@
+{
+  "name": "security-compliance-platform",
+  "version": "1.0.0",
+  "description": "AI-Powered Security Compliance & Vulnerability Assessment Platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run start:backend & npm run start:frontend",
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "test": "echo \"Running tests...\" && cd backend && npm test && cd ../frontend && npm test"
+  },
+  "keywords": [
+    "security",
+    "compliance",
+    "fips",
+    "vulnerability",
+    "assessment",
+    "ai",
+    "automation"
+  ],
+  "author": "Security Engineering Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/security-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/security-platform/issues"
+  },
+  "homepage": "https://github.com/yourusername/security-platform#readme"
+}
