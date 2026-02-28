@@ -1,92 +1,108 @@
 """
-Banking Application - Insecure Cryptography Module
-This file contains multiple FIPS compliance violations and security issues
-for testing the security agent's detection capabilities.
+Banking Application - Secure Cryptography Module
+This file has been updated to comply with FIPS 140‑2 and address security issues identified by SonarCloud.
 """
 
 import hashlib
-import random
-from Crypto.Cipher import DES, ARC4
-from Crypto.Hash import MD5, SHA1
+import os
+import secrets
+from Crypto.Cipher import AES
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Random import get_random_bytes
 
-# ❌ FIPS VIOLATION: MD5 is not FIPS 140-2 approved
-def hash_password(password):
-    """Hash password using MD5 (INSECURE)"""
-    return hashlib.md5(password.encode()).hexdigest()
+# Secure hash using SHA‑256
+def hash_password(password: str) -> str:
+    """Hash password using SHA‑256 (FIPS approved)."""
+    return hashlib.sha256(password.encode()).hexdigest()
 
-# ❌ FIPS VIOLATION: SHA1 is deprecated and not FIPS approved
-def generate_token(user_id):
-    """Generate authentication token using SHA1 (INSECURE)"""
-    data = f"{user_id}:{random.random()}"
-    return hashlib.sha1(data.encode()).hexdigest()
+# Secure token generation using SHA‑256
+def generate_token(user_id: str) -> str:
+    """Generate authentication token using SHA‑256."""
+    data = f"{user_id}:{secrets.token_hex(16)}"
+    return hashlib.sha256(data.encode()).hexdigest()
 
-# ❌ FIPS VIOLATION: DES is deprecated (use AES-256)
-def encrypt_account_number(account_num, key):
-    """Encrypt account number using DES (INSECURE)"""
-    cipher = DES.new(key, DES.MODE_ECB)
-    # Pad to 8 bytes
-    padded = account_num.ljust(8)[:8]
-    return cipher.encrypt(padded.encode())
+# AES‑256‑GCM encryption (FIPS approved)
+def encrypt_account_number(account_num: str, key: bytes) -> bytes:
+    """Encrypt account number using AES‑256‑GCM.
+    The key must be 32 bytes. Caller should manage IV securely.
+    """
+    cipher = AES.new(key, AES.MODE_GCM)
+    ciphertext, tag = cipher.encrypt_and_digest(account_num.encode())
+    return cipher.nonce + tag + ciphertext
 
-# ❌ FIPS VIOLATION: RC4 is not FIPS approved
-def encrypt_transaction(data, key):
-    """Encrypt transaction using RC4 (INSECURE)"""
-    cipher = ARC4.new(key)
-    return cipher.encrypt(data.encode())
+# AES‑256‑GCM encryption for generic data
+def encrypt_transaction(data: str, key: bytes) -> bytes:
+    """Encrypt transaction data using AES‑256‑GCM."""
+    cipher = AES.new(key, AES.MODE_GCM)
+    ciphertext, tag = cipher.encrypt_and_digest(data.encode())
+    return cipher.nonce + tag + ciphertext
 
-# ❌ SECURITY ISSUE: Hardcoded credentials
-DATABASE_PASSWORD = "admin123"
-API_SECRET_KEY = "hardcoded_secret_key_12345"
-ENCRYPTION_KEY = b"weakkey1"  # Only 8 bytes, too short
+# Load sensitive credentials from environment variables
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
+API_SECRET_KEY = os.getenv("API_SECRET_KEY")
+# Generate a strong encryption key if not provided
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+if ENCRYPTION_KEY:
+    ENCRYPTION_KEY = bytes.fromhex(ENCRYPTION_KEY)
+else:
+    ENCRYPTION_KEY = get_random_bytes(32)  # 256‑bit key
 
-# ❌ SECURITY ISSUE: Weak random number generation
-def generate_session_id():
-    """Generate session ID using weak RNG"""
-    return str(random.random())
+# Secure random session ID generation
+def generate_session_id() -> str:
+    """Generate a cryptographically secure session ID."""
+    return secrets.token_urlsafe(32)
 
-# ❌ FIPS VIOLATION: MD5 for file integrity
-def verify_file_integrity(filepath):
-    """Verify file integrity using MD5 (INSECURE)"""
-    md5_hash = MD5.new()
-    with open(filepath, 'rb') as f:
+# Secure file integrity verification using SHA‑256
+def verify_file_integrity(filepath: str) -> str:
+    """Verify file integrity using SHA‑256."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            md5_hash.update(chunk)
-    return md5_hash.hexdigest()
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
 
-# ❌ SECURITY ISSUE: Insecure password validation
-def validate_password(password):
-    """Weak password validation"""
-    return len(password) >= 6  # Too short, no complexity requirements
+# Strong password validation
+def validate_password(password: str) -> bool:
+    """Validate password complexity:
+    - Minimum 12 characters
+    - At least one uppercase, one lowercase, one digit, one special character
+    """
+    if len(password) < 12:
+        return False
+    has_upper = any(c.isupper() for c in password)
+    has_lower = any(c.islower() for c in password)
+    has_digit = any(c.isdigit() for c in password)
+    has_special = any(c in "!@#$%^&*()-_=+[]{}|;:'\",.<>?/~`" for c in password)
+    return all([has_upper, has_lower, has_digit, has_special])
 
 class BankingCrypto:
-    """Banking cryptography class with multiple issues"""
-    
-    def __init__(self):
-        # ❌ FIPS VIOLATION: Using MD5 for HMAC
-        self.hash_algo = 'md5'
-        # ❌ SECURITY ISSUE: Hardcoded salt
-        self.salt = b'fixed_salt_value'
-    
-    # ❌ FIPS VIOLATION: SHA1 for digital signatures
-    def sign_transaction(self, transaction_data):
-        """Sign transaction using SHA1 (INSECURE)"""
-        return SHA1.new(transaction_data.encode()).hexdigest()
-    
-    # ❌ SECURITY ISSUE: Weak key derivation
-    def derive_key(self, password):
-        """Derive encryption key from password (INSECURE)"""
-        # Should use PBKDF2 with high iteration count
-        return hashlib.md5(password.encode() + self.salt).digest()
+    """Banking cryptography class with secure implementations."""
 
-# ❌ SECURITY ISSUE: Insecure random for cryptographic purposes
-def generate_otp():
-    """Generate OTP using insecure random"""
-    return ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    def __init__(self, master_password: str):
+        # Derive a strong encryption key using PBKDF2 (FIPS approved)
+        self.salt = get_random_bytes(16)
+        self.key = PBKDF2(master_password, self.salt, dkLen=32, count=200_000)
+        # Use SHA‑256 for HMAC operations
+        self.hash_algo = "sha256"
+
+    def sign_transaction(self, transaction_data: str) -> str:
+        """Create a SHA‑256 based HMAC signature for a transaction."""
+        hmac = hashlib.sha256(self.key + transaction_data.encode())
+        return hmac.hexdigest()
+
+    def derive_key(self, password: str) -> bytes:
+        """Derive an encryption key from a password using PBKDF2."""
+        return PBKDF2(password, self.salt, dkLen=32, count=200_000)
+
+# Secure OTP generation using the secrets module
+def generate_otp(length: int = 6) -> str:
+    """Generate a numeric OTP with cryptographically secure randomness."""
+    return "".join(str(secrets.randbelow(10)) for _ in range(length))
 
 if __name__ == "__main__":
-    # Test the insecure functions
-    print("Testing insecure cryptography...")
-    print(f"Password hash: {hash_password('password123')}")
+    # Demonstration of secure functions
+    print("Testing secure cryptography...")
+    print(f"Password hash: {hash_password('Password@123')}")
     print(f"Token: {generate_token('user001')}")
     print(f"Session ID: {generate_session_id()}")
     print(f"OTP: {generate_otp()}")
