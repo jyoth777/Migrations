@@ -35,6 +35,8 @@ interface Workflow {
   steps: any[];
   complianceScore?: number;
   prUrl?: string;
+  agentResponse?: string;
+  error?: string;
 }
 
 function App() {
@@ -310,6 +312,18 @@ function App() {
                     <a href={selectedWorkflow.prUrl} target="_blank" rel="noopener noreferrer">
                       View Pull Request
                     </a>
+                  </div>
+                )}
+                {selectedWorkflow.error && (
+                  <div className="pr-link" style={{ color: '#e74c3c' }}>
+                    <AlertTriangle size={20} />
+                    <span>Error: {selectedWorkflow.error}</span>
+                  </div>
+                )}
+                {selectedWorkflow.agentResponse && (
+                  <div className="agent-response">
+                    <h3>Agent Response</h3>
+                    <MarkdownMessage content={selectedWorkflow.agentResponse} />
                   </div>
                 )}
               </div>

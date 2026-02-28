@@ -924,4 +924,56 @@ body {
   text-decoration-color: rgba(90, 103, 216, 1);
 }
 
+/* Agent Response in Workflow */
+.agent-response {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.agent-response h3 {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.agent-response .markdown-body {
+  color: #2d3748;
+}
+
+.agent-response .markdown-body h1,
+.agent-response .markdown-body h2,
+.agent-response .markdown-body h3,
+.agent-response .markdown-body h4 {
+  color: #2d3748;
+}
+
+.agent-response .markdown-body strong {
+  color: #1a202c;
+}
+
+.agent-response .markdown-body a {
+  color: #667eea;
+}
+
+.agent-response .code-block {
+  background: #1e293b;
+}
+
+.agent-response .code-block code {
+  color: #e2e8f0;
+}
+
+.agent-response .inline-code {
+  background: rgba(102, 126, 234, 0.1);
+  color: #5a67d8;
+}
+
 /* Made with Bob */
