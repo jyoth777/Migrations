@@ -333,7 +333,7 @@ app.post('/api/workflow/vuln-fix', async (req, res) => {
 
         // Extract PR URL from agent response - try multiple patterns
         const prPatterns = [
-          /https:\/\/github\.com\/[^\s)>\]\*]+\/pull\/\d+/,
+          /https:\/\/github\.com\/[^\s)>*]+\/pull\/\d+/,
           /PR\s*#?\d+[:\s]+.*?(https:\/\/github\.com\/\S+)/,
           /\[.*?\]\((https:\/\/github\.com\/[^)]+\/pull\/\d+)\)/,
         ];
@@ -787,3 +787,15 @@ app.listen(PORT, () => {
 });
 
 // Made with Bob
+
+module.exports = {
+  generateMockFindings,
+  generateFIPSIssues,
+  generateVulnFixes,
+  generateAISuggestions,
+  generateAlternatives,
+  generateTestFramework,
+  generateAICodeReview,
+  getBearerToken,
+  callWatsonAgent
+};
