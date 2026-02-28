@@ -1,92 +1,60 @@
+# Updated secure version of test_data.py
 """
-Banking Application - Insecure Cryptography Module
-This file contains multiple FIPS compliance violations and security issues
-for testing the security agent's detection capabilities.
+Secure Banking Crypto Module – compliance fix
 """
 
 import hashlib
-import random
-from Crypto.Cipher import DES, ARC4
-from Crypto.Hash import MD5, SHA1
+import secrets
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Hash import SHA256
 
-# ❌ FIPS VIOLATION: MD5 is not FIPS 140-2 approved
-def hash_password(password):
-    """Hash password using MD5 (INSECURE)"""
-    return hashlib.md5(password.encode()).hexdigest()
+def hash_password(pw: str) -> str:
+    return hashlib.sha256(pw.encode()).hexdigest()
 
-# ❌ FIPS VIOLATION: SHA1 is deprecated and not FIPS approved
-def generate_token(user_id):
-    """Generate authentication token using SHA1 (INSECURE)"""
-    data = f"{user_id}:{random.random()}"
-    return hashlib.sha1(data.encode()).hexdigest()
+def generate_token(uid: str) -> str:
+    nonce = secrets.token_hex(16)
+    return hashlib.sha256(f"{uid}:{nonce}".encode()).hexdigest()
 
-# ❌ FIPS VIOLATION: DES is deprecated (use AES-256)
-def encrypt_account_number(account_num, key):
-    """Encrypt account number using DES (INSECURE)"""
-    cipher = DES.new(key, DES.MODE_ECB)
-    # Pad to 8 bytes
-    padded = account_num.ljust(8)[:8]
-    return cipher.encrypt(padded.encode())
+def encrypt_account_number(num: str, key: bytes) -> bytes:
+    cipher = AES.new(key, AES.MODE_GCM)
+    ct, tag = cipher.encrypt_and_digest(num.encode())
+    return cipher.nonce + tag + ct
 
-# ❌ FIPS VIOLATION: RC4 is not FIPS approved
-def encrypt_transaction(data, key):
-    """Encrypt transaction using RC4 (INSECURE)"""
-    cipher = ARC4.new(key)
-    return cipher.encrypt(data.encode())
+def encrypt_transaction(data: str, key: bytes) -> bytes:
+    cipher = AES.new(key, AES.MODE_GCM)
+    ct, tag = cipher.encrypt_and_digest(data.encode())
+    return cipher.nonce + tag + ct
 
-# ❌ SECURITY ISSUE: Hardcoded credentials
-DATABASE_PASSWORD = "admin123"
-API_SECRET_KEY = "hardcoded_secret_key_12345"
-ENCRYPTION_KEY = b"weakkey1"  # Only 8 bytes, too short
+import os
+DATABASE_PASSWORD = os.getenv('DB_PASSWORD')
+API_SECRET_KEY = os.getenv('API_SECRET_KEY')
+ENCRYPTION_KEY = get_random_bytes(32)
 
-# ❌ SECURITY ISSUE: Weak random number generation
-def generate_session_id():
-    """Generate session ID using weak RNG"""
-    return str(random.random())
+def generate_session_id() -> str:
+    return secrets.token_urlsafe(32)
 
-# ❌ FIPS VIOLATION: MD5 for file integrity
-def verify_file_integrity(filepath):
-    """Verify file integrity using MD5 (INSECURE)"""
-    md5_hash = MD5.new()
-    with open(filepath, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            md5_hash.update(chunk)
-    return md5_hash.hexdigest()
+def verify_file_integrity(fp: str) -> str:
+    h = SHA256.new()
+    with open(fp, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            h.update(chunk)
+    return h.hexdigest()
 
-# ❌ SECURITY ISSUE: Insecure password validation
-def validate_password(password):
-    """Weak password validation"""
-    return len(password) >= 6  # Too short, no complexity requirements
+def validate_password(pw: str) -> bool:
+    return len(pw) >= 12 and any(c.isupper() for c in pw) and any(c.islower() for c in pw) and any(c.isdigit() for c in pw) and any(not c.isalnum() for c in pw)
 
 class BankingCrypto:
-    """Banking cryptography class with multiple issues"""
-    
     def __init__(self):
-        # ❌ FIPS VIOLATION: Using MD5 for HMAC
-        self.hash_algo = 'md5'
-        # ❌ SECURITY ISSUE: Hardcoded salt
-        self.salt = b'fixed_salt_value'
-    
-    # ❌ FIPS VIOLATION: SHA1 for digital signatures
-    def sign_transaction(self, transaction_data):
-        """Sign transaction using SHA1 (INSECURE)"""
-        return SHA1.new(transaction_data.encode()).hexdigest()
-    
-    # ❌ SECURITY ISSUE: Weak key derivation
-    def derive_key(self, password):
-        """Derive encryption key from password (INSECURE)"""
-        # Should use PBKDF2 with high iteration count
-        return hashlib.md5(password.encode() + self.salt).digest()
+        self.hash_algo = 'sha256'
+        self.salt = os.urandom(16)
+    def sign_transaction(self, data: str) -> str:
+        return hashlib.sha256(self.salt + data.encode()).hexdigest()
+    def derive_key(self, pw: str) -> bytes:
+        return hashlib.pbkdf2_hmac('sha256', pw.encode(), self.salt, 200_000, dklen=32)
 
-# ❌ SECURITY ISSUE: Insecure random for cryptographic purposes
-def generate_otp():
-    """Generate OTP using insecure random"""
-    return ''.join([str(random.randint(0, 9)) for _ in range(6)])
+def generate_otp() -> str:
+    return f"{secrets.randbelow(1_000_000):06d}"
 
-if __name__ == "__main__":
-    # Test the insecure functions
-    print("Testing insecure cryptography...")
-    print(f"Password hash: {hash_password('password123')}")
-    print(f"Token: {generate_token('user001')}")
-    print(f"Session ID: {generate_session_id()}")
-    print(f"OTP: {generate_otp()}")
+if __name__ == '__main__':
+    print('Secure module test')
